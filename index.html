@@ -125,9 +125,6 @@ menuNextBtn.addEventListener("click",()=>showPage(1));
 staffNextBtn.addEventListener("click",()=>showPage(2));
 document.getElementById("back-button").addEventListener("click",()=>{if(currentPageIndex>0) showPage(currentPageIndex-1);});
 
-// ページロード時に最初のページを表示
-showPage(0);
-
 // ---------- メニュー ----------
 let selectedMenuEl = null;
 fetch(`${webhookURL}?userId=${encodeURIComponent(userId)}&menu=true`)
@@ -201,8 +198,8 @@ function initializeCalendar(){
       endHour=parseInt(first["終了時間"],10);
       endMinute=parseInt(first["終了分"],10);
       reservedSlots=data.map(d=>({start:d.start,end:d.end}));
+      buildCalendar(displayedYear,displayedMonth);
     }
-    buildCalendar(displayedYear,displayedMonth);
   }).catch(()=>{alert("予約データ取得に失敗しました");});
 }
 
@@ -258,7 +255,7 @@ function showTimeSlots(dateStr){
     const hh=String(current.getHours()).padStart(2,"0"), mm=String(current.getMinutes()).padStart(2,"0");
     timeDiv.textContent=`${hh}:${mm}`;
     if(!isReserved){
-      timeDiv.addEventListener("click",()=>{  
+      timeDiv.addEventListener("click",()=>{
         if(selectedTimeDiv) selectedTimeDiv.classList.remove("selected");
         timeDiv.classList.add("selected"); selectedTimeDiv=timeDiv;
         selectedInfo.textContent=`選択中: ${dateStr} ${timeDiv.textContent}`;
@@ -271,20 +268,27 @@ function showTimeSlots(dateStr){
 }
 
 // ---------- 送信 ----------
-sendBtn.addEventListener("click",()=>{
-  if(!userId||!selectedStaff||!selectedDayDiv){ alert("予約情報が不完全です"); return; }
-  const selectedTime=slotsContainer.querySelector(".time-slot.selected");
-  if(!selectedTime) return;
-  const startDateTime=`${selectedDayDiv.dataset.date}T${selectedTime.textContent}:00+09:00`;
-  const startObj=new Date(startDateTime);
-  const endObj=new Date(startObj.getTime()+duration*60000);
-  const endDateTime=endObj.toISOString();
-  const startISO=startObj.toISOString();
-  // GETリクエストで start と end を送信
-  const sendURL=`${webhookURL}?userId=${encodeURIComponent(userId)}&menu=${encodeURIComponent(selectedMenu.メニュー名)}&staff=${encodeURIComponent(selectedStaff)}&start=${encodeURIComponent(startISO)}&end=${encodeURIComponent(endDateTime)&message="確定予約"}`;
-  fetch(sendURL)
-  .then(()=>{ showPage(3); })
-  .catch(()=>{ alert("送信に失敗しました"); });
+sendBtn.addEventListener("click",async()=>{
+  if(!userId||!selectedStaff||!selectedDayDiv) { alert("予約情報が不完全です"); return; }
+  const selectedTimeText=document.querySelector(".time-slot.selected")?.textContent;
+  if(!selectedTimeText) { alert("時間を選択してください"); return; }
+  const dateStr=selectedDayDiv.dataset.date;
+  const startDateTime=new Date(`${dateStr}T${selectedTimeText}:00+09:00`);
+  const endDateTime=new Date(startDateTime.getTime()+duration*60000);
+  try{
+    const res=await fetch(webhookURL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
+      userId,userId,
+      message:確定予約
+      menu:selectedMenu?.メニュー名,
+      staff:selectedStaff,
+      start:startDateTime.toISOString(),
+      end:endDateTime.toISOString()
+    })});
+    if(!res.ok) throw new Error("送信失敗");
+    completionPage.style.display="flex";
+    document.getElementById("calendar-page").style.display="none";
+    document.querySelector(".action-bar").style.display="none";
+  }catch(err){ alert(`送信エラー: ${err.message}`);}
 });
 </script>
 
