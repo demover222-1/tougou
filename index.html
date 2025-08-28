@@ -278,7 +278,7 @@ sendBtn.addEventListener("click",async()=>{
   try{
     const res=await fetch(webhookURL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
       userId:userId,
-      message:"確定予約"
+      message:"確定予約",
       menu:selectedMenu?.メニュー名,
       staff:selectedStaff,
       start:startDateTime.toISOString(),
