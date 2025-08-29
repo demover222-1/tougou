@@ -118,6 +118,11 @@ function showPage(index){
   menuNextBtn.style.display = index===0 ? "block" : "none";
   staffNextBtn.style.display = index===1 ? "block" : "none";
   sendBtn.style.display = index===2 ? "block" : "none";
+    if(index > 0){
+    document.getElementById("back-button").style.display = "block";
+  } else {
+    document.getElementById("back-button").style.display = "none";
+  }
   if(index===1) loadStaffPage();
   if(index===2) initializeCalendar();
 }
