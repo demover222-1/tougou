@@ -188,7 +188,7 @@ function getTodayJST(){ const now=new Date(); const utc=now.getTime()+now.getTim
 const today=getTodayJST();
 function initializeCalendar(){
   displayedYear=today.getFullYear(); displayedMonth=today.getMonth();
-  fetch(`${webhookURL}?userId=${encodeURIComponent(userId)}&duration=${encodeURIComponent(duration)}&getReserve=true`)
+  fetch(`${webhookURL}?userId=${encodeURIComponent(userId)}&duration=${encodeURIComponent(duration)}&getReserve=true&staff=${encodeURIComponent(selectedStaff)}`)
   .then(res=>res.json())
   .then(data=>{
     if(data.length>0){
