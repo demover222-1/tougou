@@ -279,28 +279,56 @@ function showTimeSlots(dateStr){
 }
 
 // ---------- 送信 ----------
-sendBtn.addEventListener("click",async()=>{
-  if(!userId||!selectedStaff||!selectedDayDiv) { alert("予約情報が不完全です"); return; }
-  const selectedTimeText=document.querySelector(".time-slot.selected")?.textContent;
-  if(!selectedTimeText) { alert("時間を選択してください"); return; }
-  const dateStr=selectedDayDiv.dataset.date;
-  const startDateTime=new Date(`${dateStr}T${selectedTimeText}:00+09:00`);
-  const endDateTime=new Date(startDateTime.getTime()+duration*60000);
-  try{
-    const res=await fetch(webhookURL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
-      userId:userId,
-      message:"確定予約",
-      menu:selectedMenu?.メニュー名,
-      staff:selectedStaff,
-      start:startDateTime.toISOString(),
-      end:endDateTime.toISOString()
-    })});
-    if(!res.ok) throw new Error("送信失敗");
-    completionPage.style.display="flex";
-    document.getElementById("calendar-page").style.display="none";
-    document.querySelector(".action-bar").style.display="none";
-  }catch(err){ alert(`送信エラー: ${err.message}`);}
+sendBtn.addEventListener("click", async () => {
+  if (!userId || !selectedStaff || !selectedDayDiv) { 
+    alert("予約情報が不完全です"); 
+    return; 
+  }
+
+  const selectedTimeText = document.querySelector(".time-slot.selected")?.textContent;
+  if (!selectedTimeText) { 
+    alert("時間を選択してください"); 
+    return; 
+  }
+
+  // ★ ここで送信中に切り替え
+  sendBtn.disabled = true;
+  const originalText = sendBtn.textContent;
+  sendBtn.textContent = "予約送信中です。お待ちください";
+
+  const dateStr = selectedDayDiv.dataset.date;
+  const startDateTime = new Date(`${dateStr}T${selectedTimeText}:00+09:00`);
+  const endDateTime = new Date(startDateTime.getTime() + duration * 60000);
+
+  try {
+    const res = await fetch(webhookURL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId: userId,
+        message: "確定予約",
+        menu: selectedMenu?.メニュー名,
+        staff: selectedStaff,
+        start: startDateTime.toISOString(),
+        end: endDateTime.toISOString()
+      })
+    });
+
+    if (!res.ok) throw new Error("送信失敗");
+
+    // 成功した場合は完了画面に遷移
+    completionPage.style.display = "flex";
+    document.getElementById("calendar-page").style.display = "none";
+    document.querySelector(".action-bar").style.display = "none";
+
+  } catch (err) {
+    alert(`送信エラー: ${err.message}`);
+    // 失敗した場合はボタンを元に戻す
+    sendBtn.disabled = false;
+    sendBtn.textContent = originalText;
+  }
 });
+
 </script>
 
 </body>
