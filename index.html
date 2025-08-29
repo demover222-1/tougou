@@ -109,6 +109,12 @@ const completionPage = document.getElementById("completion-page");
 
 let displayedYear, displayedMonth;
 
+ // 初期ボタン表示設定
+menuNextBtn.style.display = "block";    // 最初は「次へ」のみ表示
+staffNextBtn.style.display = "none";
+sendBtn.style.display = "none";
+document.getElementById("back-button").style.display = "none";
+ 
 // ---------- ページ遷移 ----------
 const pages = ["menu-page","staff-page","calendar-page"];
 let currentPageIndex = 0;
