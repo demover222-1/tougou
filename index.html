@@ -82,6 +82,7 @@
 </div>
 
 <script>
+const postwebhookURL = "https://script.google.com/macros/s/AKfycbzFGVSssx_VN99n_2nLWI8WomzhG8ilDf3cE7pMBLzsfuRn7hCfHH275zSGcOq7jES2/exec";
 const webhookURL = "https://hook.eu2.make.com/w1bofn7hiamcwh44h5wu3d7c0s5pn786";
 const urlParams = new URLSearchParams(window.location.search);
 const userId = urlParams.get("userId");
@@ -301,7 +302,7 @@ sendBtn.addEventListener("click", async () => {
   const endDateTime = new Date(startDateTime.getTime() + duration * 60000);
 
   try {
-    const res = await fetch(webhookURL, {
+    const res = await fetch(postwebhookURL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
