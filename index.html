@@ -82,7 +82,8 @@
 </div>
 
 <script>
-const postwebhookURL = "https://script.google.com/macros/s/AKfycby-U5NLmihFj_pCb_GJZbNKObbqpN-6cRr-uV6VCHKUyj32AL5uZODtdhaK4SxIso0/exec";
+const postwebhookURL = "https://script.google.com/macros/s/AKfycbzClSOTD1nC5HtrsxNxfi33RZ4u_9L3wD0zRkyADAvj6EvEP_pXaKNcZhkN2Ct1wcIw/exec";
+const postwebhookURL = "https://script.google.com/macros/s/AKfycbzXjmpbBG46c-UqVb3Qepy-nskBje0Sx-nBbon9FxeFevTE758O315ylmWFIsTSpQ-G/exec";
 const webhookURL = "https://hook.eu2.make.com/w1bofn7hiamcwh44h5wu3d7c0s5pn786";
 const urlParams = new URLSearchParams(window.location.search);
 const userId = urlParams.get("userId");
@@ -110,11 +111,13 @@ const completionPage = document.getElementById("completion-page");
 
 let displayedYear, displayedMonth;
 
-menuNextBtn.style.display = "block";
+ // 初期ボタン表示設定
+menuNextBtn.style.display = "block";    // 最初は「次へ」のみ表示
 staffNextBtn.style.display = "none";
 sendBtn.style.display = "none";
 document.getElementById("back-button").style.display = "none";
 
+// ---------- ページ遷移 ----------
 const pages = ["menu-page","staff-page","calendar-page"];
 let currentPageIndex = 0;
 function showPage(index){
@@ -123,8 +126,11 @@ function showPage(index){
   menuNextBtn.style.display = index===0 ? "block" : "none";
   staffNextBtn.style.display = index===1 ? "block" : "none";
   sendBtn.style.display = index===2 ? "block" : "none";
-  if(index > 0) document.getElementById("back-button").style.display = "block";
-  else document.getElementById("back-button").style.display = "none";
+    if(index > 0){
+    document.getElementById("back-button").style.display = "block";
+  } else {
+    document.getElementById("back-button").style.display = "none";
+  }
   if(index===1) loadStaffPage();
   if(index===2) initializeCalendar();
 }
@@ -287,6 +293,7 @@ sendBtn.addEventListener("click", async () => {
     return; 
   }
 
+  // ★ ここで送信中に切り替え
   sendBtn.disabled = true;
   const originalText = sendBtn.textContent;
   sendBtn.textContent = "予約送信中です。お待ちください";
@@ -296,32 +303,34 @@ sendBtn.addEventListener("click", async () => {
   const endDateTime = new Date(startDateTime.getTime() + duration * 60000);
 
   try {
-    const bodyParams = new URLSearchParams();
-    bodyParams.append("userId", userId);
-    bodyParams.append("message", "確定予約");
-    bodyParams.append("menu", selectedMenu?.メニュー名);
-    bodyParams.append("staff", selectedStaff);
-    bodyParams.append("start", startDateTime.toISOString());
-    bodyParams.append("end", endDateTime.toISOString());
-
     const res = await fetch(postwebhookURL, {
       method: "POST",
-      headers: {"Content-Type": "application/x-www-form-urlencoded"},
-      body: bodyParams.toString()
+      headers: { "Content-Type": "text/plain" },
+      body: JSON.stringify({
+        userId: userId,
+        message: "確定予約",
+        menu: selectedMenu?.メニュー名,
+        staff: selectedStaff,
+        start: startDateTime.toISOString(),
+        end: endDateTime.toISOString()
+      })
     });
 
     if (!res.ok) throw new Error("送信失敗");
 
+    // 成功した場合は完了画面に遷移
     completionPage.style.display = "flex";
     document.getElementById("calendar-page").style.display = "none";
     document.querySelector(".action-bar").style.display = "none";
 
   } catch (err) {
     alert(`送信エラー: ${err.message}`);
+    // 失敗した場合はボタンを元に戻す
     sendBtn.disabled = false;
     sendBtn.textContent = originalText;
   }
 });
+
 </script>
 
 </body>
