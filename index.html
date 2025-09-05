@@ -139,7 +139,7 @@ document.getElementById("back-button").addEventListener("click",()=>{if(currentP
 
 // ---------- メニュー ----------
 let selectedMenuEl = null;
-fetch(proxyURL, {
+fetch(webhookURL, {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({ userId, menu: true })
