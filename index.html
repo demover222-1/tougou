@@ -185,7 +185,12 @@ function loadStaffPage(){
   .then(data=>{
     staffContainer.innerHTML="";
     data.forEach(staff=>{
-      const nickname=staff[2]||"", intro=staff[6]||"", imageUrl=staff[11]?`https://lh3.googleusercontent.com/d/${staff[11]}`:"", skill=staff[8]||"", fee=staff[9]||"";
+        const nickname = staff.nickname || "";
+        const intro     = staff.introduction || "";
+        const imageUrl  = staff.photo || "";
+        const skill     = staff.skill || "";
+        const fee       = staff.fee || "";
+
       const card=document.createElement("div");
       card.className="staff-card";
       card.innerHTML=`<img src="${imageUrl}" class="staff-photo" alt="スタッフ写真"><div class="staff-info"><div class="nickname">${nickname}</div><div class="block-label">得意な技術</div><div>${skill}</div><div class="block-label">指名料</div><div>${fee}</div><div class="block-label">紹介文</div><div class="introduction">${intro}</div></div>`;
