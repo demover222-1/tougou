@@ -225,12 +225,12 @@ fetch(webhookURL, {
 })
   .then(res=>res.json())
   .then(data=>{
-    if(data.length>0){
+    if(data.businessHours){
       const first=data[0];
-      startHour=parseInt(first["開始時間"],10);
-      startMinute=parseInt(first["開始分"],10);
-      endHour=parseInt(first["終了時間"],10);
-      endMinute=parseInt(first["終了分"],10);
+      startHour=parseInt(businessHours,10);
+      startMinute=parseInt(businessHours,10);
+      endHour=parseInt(businessHours,10);
+      endMinute=parseInt(businessHours,10);
       reservedSlots=data.map(d=>({start:d.start,end:d.end}));
       buildCalendar(displayedYear,displayedMonth);
     }
