@@ -330,14 +330,17 @@ sendBtn.addEventListener("click", async () => {
     const res = await fetch(postwebhookURL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        userId: userId,
-        kakutei: true,
-        menu: selectedMenu?.メニュー名,
-        staff: selectedStaff,
-        start: startDateTime.toISOString(),
-        end: endDateTime.toISOString()
-      })
+　　　　body: JSON.stringify({
+　　　　  kakutei: true,
+      　  reservation: {
+          userId: userId,
+          menu: selectedMenu,
+          staff: selectedStaff,
+          start: startDateTime.toISOString(),
+          end: endDateTime.toISOString()
+      }
+    })
+
     });
 
     if (!res.ok) throw new Error("送信失敗");
