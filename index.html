@@ -281,11 +281,9 @@ function showTimeSlots(dateStr){
   const reservedForDay=reservedSlots.filter(slot=>new Date(slot.start).toISOString().slice(0,10)===dateStr);
   let selectedTimeDiv=null;
     
- 
- //以下の1行とその下2行を切り替えるだけで、残業時間を考慮して生成するか、予約時間を考慮せず生成するか選べる、今のとこは残業を考慮して営業終了時間まで予約できるようにしてる
- // while(current<end){   
-    const overtime = 30 * 60000; // 30分残業など、自由に設定可能
-　　while(current < end || (current.getTime() + duration*60000) <= (end.getTime() + overtime)){
+
+ while(current<=end){   
+
  
     const slotEnd = new Date(current.getTime() + duration*60000);
     const isReserved=reservedForDay.some(slot=>{const s=new Date(slot.start),e=new Date(slot.end); return !(slotEnd<=s||current>=e);});
