@@ -223,16 +223,16 @@ fetch(webhookURL, {
   })
 })
   .then(res=>res.json())
-  .then(data=>{
-    if(data.businessHours){
-      const first=data[0];
-      startHour=parseInt(businessHours,10);
-      startMinute=parseInt(businessHours,10);
-      endHour=parseInt(businessHours,10);
-      endMinute=parseInt(businessHours,10);
-      reservedSlots=data.map(d=>({start:d.start,end:d.end}));
-      buildCalendar(displayedYear,displayedMonth);
-    }
+.then(data => {
+  if (data.businessHours) {
+    const bh = data.businessHours;
+    startHour   = parseInt(bh.startHour, 10) || 9;
+    startMinute = parseInt(bh.startMinute, 10) || 0;
+    endHour     = parseInt(bh.endHour, 10) || 18;
+    endMinute   = parseInt(bh.endMinute, 10) || 0;
+    reservedSlots = data.reservedSlots || [];
+    buildCalendar(displayedYear, displayedMonth);
+  }
   }).catch(()=>{alert("予約データ取得に失敗しました");});
 }
 
