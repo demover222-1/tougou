@@ -281,7 +281,7 @@ function showTimeSlots(dateStr){
   const reservedForDay=reservedSlots.filter(slot=>new Date(slot.start).toISOString().slice(0,10)===dateStr);
   let selectedTimeDiv=null;
     
-
+//残業確定でスロット生成してるので、90分予約でも営業終了時間までスロット生成可能にしているが、残業を考慮しない、営業終了時間までとするならば「=」をけすだけでいい
  while(current<=end){   
 
  
