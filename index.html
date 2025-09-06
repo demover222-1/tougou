@@ -332,7 +332,7 @@ sendBtn.addEventListener("click", async () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         userId: userId,
-        message: "確定予約",
+        kakutei: true,
         menu: selectedMenu?.メニュー名,
         staff: selectedStaff,
         start: startDateTime.toISOString(),
