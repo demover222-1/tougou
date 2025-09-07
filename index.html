@@ -142,7 +142,7 @@ let selectedMenuEl = null;
 fetch(webhookURL, {
   method: "POST",
   headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ userId, menu: true })
+  body: JSON.stringify({ webappurl: webappurl, userId: userId, menu: true })
 })
 .then(res=>res.json())
 .then(data=>{
@@ -179,7 +179,7 @@ function loadStaffPage(){
   fetch(webhookURL, {
   method: "POST",
   headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ userId, staff: true })
+  body: JSON.stringify({ webappurl: webappurl, userId: userId, staff: true })
 })
   .then(res=>res.json())
   .then(data=>{
@@ -223,6 +223,7 @@ fetch(webhookURL, {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({
+    webappurl: webappurl,
     userId: userId,
     duration: duration,
     getReserve: true,
