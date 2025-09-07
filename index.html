@@ -192,7 +192,7 @@ function loadStaffPage(){
 
       const card=document.createElement("div");
       card.className="staff-card";
-      card.innerHTML=`<img src="${imageUrl}" class="staff-photo" alt="スタッフ写真"><div class="staff-info"><div class="nickname">${nickname}</div><div class="block-label">得意な技術</div><div>${skill}</div><div class="block-label">指名料</div><div>${fee}</div><div class="block-label">紹介文</div><div class="introduction">${intro}</div></div>`;
+      card.innerHTML=`<img src="${imageUrl}" class="staff-photo" alt="スタッフ写真"><div class="staff-info"><div class="nickname">${nickname}</div><div class="block-label">得意な技術</div><div>${skill}</div><div class="block-label">指名料</div><div>(¥${fee})</div><div class="block-label">紹介文</div><div class="introduction">${intro}</div></div>`;
       card.addEventListener("click",()=>{
         if(selectedStaffEl) selectedStaffEl.classList.remove("selected");
         card.classList.add("selected");
