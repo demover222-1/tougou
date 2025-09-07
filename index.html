@@ -197,7 +197,13 @@ function loadStaffPage(){
         if(selectedStaffEl) selectedStaffEl.classList.remove("selected");
         card.classList.add("selected");
         selectedStaffEl=card;
-        selectedStaff=nickname;
+        selectedStaff = {
+                          nickname: nickname,
+                          skill: skill,
+                          fee: fee,
+                          photo: imageUrl,
+                          introduction: intro
+                        };
         staffNextBtn.disabled=false;
         staffNextBtn.classList.add("highlight");
         setTimeout(()=>staffNextBtn.classList.remove("highlight"),1200);
