@@ -1,48 +1,13 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>予約システム</title>
-<style>
-  body { font-family: sans-serif; padding: 20px; background-color: #f9f9f9; max-width: 800px; margin: auto; }
-  h2, h1 { text-align: center; color: #0f172a; }
-  .page { display: none; padding-bottom: 80px; }
-  .active { display: block; }
-  .block-title { margin-top: 24px; font-size: 18px; font-weight: bold; color: #444; border-left: 4px solid #4CAF50; padding-left: 10px; margin-bottom: 10px; }
-  .menu-item { border-radius: 8px; background-color: #f0f0f0; padding: 12px 16px; margin-bottom: 12px; cursor: pointer; user-select: none; transition: background-color 0.3s ease; }
-  .menu-item:hover { background-color: #e0e0e0; }
-  .menu-item.selected { background-color: #4caf50; color: white; }
-  .menu-title { font-size: 16px; font-weight: bold; }
-  .menu-desc { font-size: 13px; margin-top: 4px; color: #333; padding-left: 8px; }
-  .staff-list { display: flex; flex-direction: column; gap: 20px; max-width: 600px; margin: 0 auto; }
-  .staff-card { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 16px; display: flex; gap: 16px; align-items: flex-start; cursor: pointer; }
-  .staff-card.selected { border: 2px solid #22c55e; }
-  .staff-photo { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; }
-  .staff-info { flex: 1; }
-  .nickname { font-weight: bold; font-size: 1.1em; margin-bottom: 6px; }
-  .block-label { font-weight: bold; margin-top: 8px; }
-  .introduction { font-size: 0.9em; color: #333; }
-  #calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 20px; }
-  .day-name, .day { text-align: center; padding: 6px 0; font-weight: 600; }
-  .day-name { background-color: #0c4a6e; color: white; border-radius: 4px; font-size: 14px; }
-  .day { background-color: #f9fbfd; border-radius: 6px; cursor: pointer; font-size: 16px; line-height: 28px; }
-  .day:hover { background-color: #e0f2fe; }
-  .day.inactive { color: #a0a8b8; cursor: default; background: none; }
-  .day.selected { background-color: #22c55e; color: white; font-weight: 700; }
-  #times-list { margin-top: 24px; background: #fff; border-radius: 12px; box-shadow: 0 12px 24px rgba(0,0,0,0.08); padding: 16px; display: none; }
-  .time-slot { display: inline-block; margin: 6px 6px 6px 0; padding: 8px 14px; border-radius: 6px; font-weight: 700; cursor: pointer; border: 2px solid #22c55e; background-color: #dcfce7; color: #166534; box-shadow: inset 0 0 8px #bbf7d0; min-width: 72px; text-align: center; }
-  .time-slot.selected { background-color: #16a34a; border-color: #15803d; color: white; box-shadow: none; }
-  .time-slot.unavailable { background-color: #e2e8f0; color: #64748b; border-color: #cbd5e1; cursor: default; box-shadow: none; }
-  #selected-info { margin-top: 20px; font-weight: 700; font-size: 16px; text-align: center; color: #166534; }
-  #completion-page { display: none; height: 100vh; background-color: #f9f9f9; flex-direction: column; justify-content: center; align-items: center; text-align: center; font-size: 24px; color: #16a34a; padding: 20px; box-sizing: border-box; }
-  .action-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: #fff; padding: 12px 20px; box-shadow: 0 -2px 8px rgba(0,0,0,0.15); display: flex; flex-direction: column; gap: 8px; box-sizing: border-box; }
-  .action-bar button { padding: 14px; font-size: 16px; border: none; border-radius: 10px; cursor: pointer; user-select: none; transition: background-color 0.3s ease; }
-  .action-bar button:disabled { background-color: #cccccc; cursor: not-allowed; }
-  .action-bar button:hover:not(:disabled) { background-color: #0056b3; color: white; }
-  .highlight { background-color: #22c55e !important; color: white; transform: scale(1.05); transition: all 0.3s; }
-</style>
 </head>
+
+
 <body>
 
 <div id="menu-page" class="page active">
@@ -87,6 +52,55 @@ const webhookURL = "https://reservations.thinklayer.jp/";
 const urlParams = new URLSearchParams(window.location.search);
 const userId = urlParams.get("userId");
 const webappurl = urlParams.get("webappurl");
+
+//CSS関連全て～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～
+window.onload = function() {
+  // CSS 読み込み
+  const cssFile = urlParams.get("css") || "style.css";
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = cssFile;
+  document.head.appendChild(link);
+
+  // カスタムカラー設定
+  const root = document.documentElement;
+	const colorMap = {
+	  // --- 文字色 ---
+	  headingColor: "#4a4a4a",
+	  blockTitleColor: "#000000",
+	  menuDescColor: "#000000",
+	  introductionColor: "#000000",
+	  timeSlotColor: "#166534",
+	  selectedInfoColor: "#166534",
+	  completionColor: "#f6c7d6",
+
+	  // --- 背景色 ---
+	  bgBody: "#ffffff",
+	  bgMenuSelected: "#f6c7d6",
+	  bgStaffCard: "#ffffff",
+	  bgDayName: "#ffb9ff",
+	  bgDay: "#f9fbfd",
+	  bgDaySelected: "#f8d9e1",
+	  bgTimesList: "#ffffff",
+	  bgTimeSlot: "#dcfce7",
+	  bgTimeSlotSelected: "#fecaf8",
+	  bgCompletion: "#f9f9f9",
+	  bgButtonHover: "#f6c7d6",
+	  bgHighlight: "#f8d9e1",
+
+	  // --- 枠線 / ボーダー ---
+	  borderBlockTitle: "#fecaf8",
+	  borderStaffCardSelected: "#f8d9e1",
+	  borderTimeSlot: "#f8d9e1",
+	  borderTimeSlotSelected: "#ff00ff"
+	};
+
+
+
+  for (const key in colorMap) {
+    if (urlParams.get(key)) root.style.setProperty(colorMap[key], urlParams.get(key));
+  }
+//～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～
 
 let selectedMenu = null;
 let selectedStaff = null;
@@ -335,22 +349,22 @@ sendBtn.addEventListener("click", async () => {
   const endDateTime = new Date(startDateTime.getTime() + duration * 60000);
 
   try {
-    const res = await fetch(postwebhookURL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-　　　　body: JSON.stringify({
-　　　　   kakutei: true,
-          webappurl: webappurl,
-      　  reservation: {
-          userId: userId,
-          menu: selectedMenu,
-          staff: selectedStaff,
-          start: startDateTime.toISOString(),
-          end: endDateTime.toISOString()
-      }
-    })
+	const res = await fetch(postwebhookURL, {
+	  method: "POST",
+	  headers: { "Content-Type": "application/json" },
+	  body: JSON.stringify({
+		kakutei: true,
+		webappurl: webappurl,
+		reservation: {
+		  userId: userId,
+		  menu: selectedMenu,
+		  staff: selectedStaff,
+		  start: startDateTime.toISOString(),
+		  end: endDateTime.toISOString()
+    }
+  })
+});
 
-    });
 
     if (!res.ok) throw new Error("送信失敗");
 
@@ -366,6 +380,7 @@ sendBtn.addEventListener("click", async () => {
     sendBtn.textContent = originalText;
   }
 });
+};
 
 </script>
 
