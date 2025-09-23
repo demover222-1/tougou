@@ -1,0 +1,173 @@
+:root {
+  /* --- 文字色 --- */
+  --color-heading: #d4af37;
+  --color-block-title: #d4af37;
+  --color-menu-desc: #111111;
+  --color-introduction: #111111;
+  --color-time-slot: #111111;
+  --color-selected-info: #d4af37;
+  --color-completion: #d4af37;
+
+  /* --- 背景色 --- */
+  --bg-body: #111111;
+  --bg-menu-selected: #d4af37;
+  --bg-staff-card: #f0f0f0D9;
+  --bg-day-name: #f8f874D9;
+  --bg-day: #f0f0f0D9;
+  --bg-day-selected: #f7ed21;
+  --bg-times-list: #f0f0f0D9;
+  --bg-time-slot: #f8e5a1;
+  --bg-time-slot-selected: #f7ed21;
+  --bg-completion: #111111;
+  --bg-button-hover: #f1d77e;
+  --bg-highlight: #f8e5a1;
+
+/* 追加分 */
+  --bg-menu-card: #f0f0f0d9;       /*変更できるように追加～～～～～～～～*/
+  --bg-bar: #ffffffd9;
+
+  /* --- 枠線 / ボーダー --- */
+  --border-block-title: #f7ed21;
+  --border-staff-card-selected: #f8e5a1;
+  --border-time-slot: #f8e5a1;
+  --border-time-slot-selected: #ffff00;
+}
+
+/* --- 以下既存 CSS --- */
+
+body { 
+	font-family: sans-serif; 
+	padding: 20px; 
+	background-color: var(--bg-body); 
+	max-width: 800px; 
+	margin: auto;
+
+/*背景画像関連*/
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-attachment: fixed;
+  background-size: cover;
+ }
+  
+h2, h1 { 
+	text-align: center; 
+	color: var(--color-heading);
+
+  text-shadow:
+    -2px -2px 3px #ffffffd9,
+     2px -2px 3px #ffffffd9,
+    -2px  2px 3px #ffffffd9,
+     2px  2px 3px #ffffffd9;
+ }
+
+.page { display: none; padding-bottom: 80px; }
+.active { display: block; }
+
+.block-title { 
+	margin-top: 24px; 
+	font-size: 18px; 
+	font-weight: bold; 
+	color: var(--color-block-title); 
+	border-left: 4px solid var(--border-block-title); 
+	padding-left: 10px; 
+	margin-bottom: 10px;
+
+  text-shadow:
+    -2px -2px 3px #ffffffd9,
+     2px -2px 3px #ffffffd9,
+    -2px  2px 3px #ffffffd9,
+     2px  2px 3px #ffffffd9;
+
+ }
+
+.menu-item { 
+	border-radius: 8px; 
+	background-color: var(--bg-menu-card); 
+	padding: 12px 16px; 
+	margin-bottom: 12px; 
+	cursor: pointer; 
+	user-select: none; 
+	transition: background-color 0.3s ease;
+ }
+
+.menu-item:hover { background-color: #e0e0e0; }
+.menu-item.selected { background-color: var(--bg-menu-selected); color: #ffffff; }
+
+.menu-title { font-size: 16px; font-weight: bold; }
+.menu-desc { font-size: 13px; margin-top: 4px; color: var(--color-menu-desc); padding-left: 8px; }
+
+.staff-list { display: flex; flex-direction: column; gap: 20px; max-width: 600px; margin: 0 auto; }
+.staff-card { background: var(--bg-staff-card); border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 16px; display: flex; gap: 16px; align-items: flex-start; cursor: pointer; }
+.staff-card.selected { border: 4px solid var(--border-staff-card-selected); }
+
+.staff-photo { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; }
+.staff-info { flex: 1; }
+.nickname { font-weight: bold; font-size: 1.1em; margin-bottom: 6px; }
+.block-label { font-weight: bold; margin-top: 8px; }
+.introduction { font-size: 0.9em; color: var(--color-introduction); }
+
+#calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 20px; }
+.day-name, .day { text-align: center; padding: 6px 0; font-weight: 600; }
+.day-name { background-color: var(--bg-day-name); color: white; border-radius: 4px; font-size: 14px; }
+.day { background-color: var(--bg-day); border-radius: 6px; cursor: pointer; font-size: 16px; line-height: 28px; }
+.day:hover { background-color: #a0a8b8; }
+.day.inactive { color: #a0a8b8; cursor: default; background: none; }
+.day.selected { background-color: var(--bg-day-selected); color: white; font-weight: 700; }
+
+#times-list { margin-top: 24px; background: var(--bg-times-list); border-radius: 12px; box-shadow: 0 12px 24px rgba(0,0,0,0.08); padding: 16px; display: none; }
+.time-slot { display: inline-block; margin: 6px 6px 6px 0; padding: 8px 14px; border-radius: 6px; font-weight: 700; cursor: pointer; border: 2px solid var(--border-time-slot); background-color: var(--bg-time-slot); color: var(--color-time-slot); box-shadow: inset 0 0 8px #bbf7d0; min-width: 72px; text-align: center; }
+.time-slot.selected { background-color: var(--bg-time-slot-selected); border-color: var(--border-time-slot-selected); color: #ffffff; box-shadow: none; }
+.time-slot.unavailable { background-color: #e2e8f0; color: #64748b; border-color: #cbd5e1; cursor: default; box-shadow: none; }
+
+#selected-info { margin-top: 20px; font-weight: 700; font-size: 16px; text-align: center; color: var(--color-selected-info); }
+
+#completion-page { display: none; height: 100vh; background-color: var(--bg-completion); flex-direction: column; justify-content: center; align-items: center; text-align: center; font-size: 24px; color: var(--color-completion); padding: 20px; box-sizing: border-box; }
+
+.action-bar { 
+	position: fixed; 
+	bottom: 0; 
+	left: 0; 
+	width: 100%; 
+	background: var(--bg-bar); 
+	padding: 12px 20px; 
+	box-shadow: 0 -2px 8px rgba(0,0,0,0.15); 
+	display: flex; 
+	flex-direction: column; 
+	gap: 8px; 
+	box-sizing: border-box;
+ }
+
+.action-bar button { padding: 14px; font-size: 16px; border: none; border-radius: 10px; cursor: pointer; user-select: none; transition: background-color 0.3s ease; }
+.action-bar button:disabled { background-color: #cccccc; cursor: not-allowed; }
+.action-bar button:hover:not(:disabled) { background-color: var(--bg-button-hover); color: #ffffff; }
+
+.highlight { background-color: var(--bg-highlight) !important; color: #ffffff; transform: scale(1.05); transition: all 0.3s; }
+
+
+
+
+
+#month-navigation {
+  display: flex;
+  justify-content: center; /* 水平方向中央揃え */
+  align-items: center;     /* 垂直方向中央揃え */
+  gap: 12px;               /* 前ボタン・ラベル・次ボタンの間隔 */
+  margin-top: 16px;
+  margin-bottom: 16px;
+}
+
+#month-navigation .nav-btn {
+  padding: 6px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #f0f0f0;
+}
+
+#current-month-label {
+  color: var(--color-heading);
+  font-weight: bold;
+  font-size: 16px;
+}
+
