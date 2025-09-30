@@ -1,0 +1,394 @@
+/* 統合 */
+
+:root {
+  /* --- 全体 --- */
+  --color-heading: #4a4a4a;                  /* タイトル・文字色、現在読み込み中、予約したい日時、完了ページの文字色、現在選択中の年月 */
+  --bg-selected: #7fcfff;                    /* 選択後・menu(ブロック左縦線,選択肢)背景色・staff(枠線)・曜日,日付と時間スロット */
+  --bg-card-common: #f0f0f0d9;               /* 共通背景色・menucard・staffcard・選択可能日付スロット・時間スロット一覧後ろカード・前の月と次の月ボタン及びその枠線 */
+  --color-slot-string-common: #000000;       /* 日付スロット(選択前・選択不可)と時間スロット(選択前・選択後)文字色・選択後日付スロット文字色 */
+
+  /* --- 下部ボタン --- */
+  --color-button-string: #000000;            /* 文字色 */
+  --bg-disabled-button: #cccccc;             /* 選択前・背景色 */
+  --bg-highlight: #a3d9ff;                   /* 選択後・背景色 */
+
+  /* --- メニュー --- */
+  --color-block-title: #000000;              /* 文字色・ブロック名 */
+  --color-menu-item-string: #000000;         /* 文字色・メニュー名・選択前後共通 */
+  --color-menu-desc-string: #424242;         /* 文字色・メニュー説明 */
+
+  /* --- スタッフ --- */
+  --color-staff-name: #000000;               /* 文字色・スタッフ名 */
+  --color-staff-label: #000000;              /* 文字色・得意な技術・指名料・紹介文 */
+  --color-staff-exp: #000000;                /* 文字色・得意な技術・指名料・紹介文の説明 */
+
+  /* --- カレンダー --- */
+  --color-day-string: #ffffff;               /* 文字色・曜日スロット */
+  --bg-time-slot: #dcfce7;                   /* 背景色・時間スロット */
+  --bg-unavailable-slots: #e2e8f0;           /* 背景色・選択不可の時間スロット-枠線・文字色も共通 */
+
+}
+
+
+body { 
+	font-family: sans-serif;
+	padding: 20px;  
+	max-width: 800px; 
+	margin: auto;
+
+  /*背景画像関連*/
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-attachment: fixed;
+    background-size: cover;
+
+}
+  
+h2, h1 { 
+	text-align: center; 
+	color: var(--color-heading);
+
+  text-shadow:
+    -1px -1px 3px #ffffffd9,
+     1px -1px 3px #ffffffd9,
+    -1px  1px 3px #ffffffd9,
+     1px  1px 3px #ffffffd9;
+}
+
+.page { display: none; padding-bottom: 80px; }
+.active { display: block; }
+
+.block-title { 
+	margin-top: 24px;
+	font-size: 18px; 
+	font-weight: bold; 
+	color: var(--color-block-title); 
+	border-left: 4px solid var(--bg-selected); 
+	padding-left: 10px; 
+	margin-bottom: 10px;
+
+  text-shadow:
+    -1px -1px 3px #ffffffd9,
+     1px -1px 3px #ffffffd9,
+    -1px  1px 3px #ffffffd9,
+     1px  1px 3px #ffffffd9;
+
+ }
+
+.menu-item { 
+	border-radius: 8px; 
+	background-color: var(--bg-card-common); 
+	padding: 12px 16px; 
+	margin-bottom: 12px; 
+	cursor: pointer; 
+	user-select: none; 
+	transition: background-color 0.3s ease;
+	color: var(--color-menu-item-string);
+ }
+
+.menu-item:hover { 
+	background-color: var(--bg-selected);
+ }
+.menu-item.selected { 
+	background-color: var(--bg-selected); 
+	color: var(--color-menu-item-string);
+ }
+
+.menu-title { 
+	font-size: 16px; 
+	font-weight: bold;
+ }
+
+.menu-desc { 
+	font-size: 13px; 
+	margin-top: 4px; 
+	color: var(--color-menu-desc-string); 
+	padding-left: 8px;
+ }
+
+.staff-list { 
+	display: flex; 
+	flex-direction: column; 
+	gap: 20px; 
+	max-width: 600px; 
+	margin: 0 auto;
+ }
+
+.staff-card { 
+	background: var(--bg-card-common); 
+	border-radius: 12px; 
+	box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
+	padding: 16px; 
+	display: flex; 
+	gap: 16px; 
+	align-items: flex-start; 
+	cursor: pointer;
+ }
+
+.staff-card.selected { 
+	border: 2px solid var(--bg-selected);
+ }
+
+.staff-photo { 
+	width: 80px; 
+	height: 80px; 
+	border-radius: 50%; 
+	object-fit: cover;
+ }
+
+.staff-info { flex: 1; }
+
+.nickname { 
+	font-weight: bold; 
+	font-size: 1.1em; 
+	margin-bottom: 6px;
+	color: var(--color-staff-name);
+ }
+
+.block-label { 
+	font-weight: bold; 
+	margin-top: 8px;
+	color: var(--color-staff-label);
+ }
+
+.introduction { 
+	font-size: 0.9em; 
+	color: var(--color-staff-exp);
+ }
+
+#calendar { 
+	display: grid; 
+	grid-template-columns: repeat(7, 1fr); 
+	gap: 4px; 
+	margin-top: 20px;
+ }
+
+.day-name, .day { 
+	text-align: center; 
+	padding: 6px 0; 
+	font-weight: 600;
+ }
+
+.day-name { 
+	background-color: var(--bg-selected); 
+	color: var(--color-day-string); 
+	border-radius: 4px; 
+	font-size: 14px;
+ }
+
+.day { 
+	background-color: var(--bg-card-common); 
+	border-radius: 6px; 
+	cursor: pointer; 
+	font-size: 16px; 
+	line-height: 28px;
+	color: var(--color-slot-string-common);
+ }
+
+.day:hover { 
+	background-color: var(--bg-selected);
+ }
+
+.day.inactive { 
+	color: var(--color-slot-string-common);
+	cursor: default; 
+	background: none;
+ }
+
+.day.selected { 
+	background-color: var(--bg-selected); 
+	color: var(--color-slot-string-common);
+	font-weight: 700;
+ }
+
+#times-list { 
+	margin-top: 24px; 
+	background: var(--bg-card-common); 
+	border-radius: 12px; 
+	box-shadow: 0 12px 24px rgba(0,0,0,0.08); 
+	padding: 16px; 
+	display: none;
+ }
+
+.time-slot { 
+	display: inline-block; 
+	margin: 6px 6px 6px 0; 
+	padding: 8px 14px; 
+	border-radius: 6px; 
+	font-weight: 700; 
+	cursor: pointer; 
+	border: 2px solid var(--bg-time-slot); 
+	background-color: var(--bg-time-slot); 
+	color: var(--color-slot-string-common); 
+	box-shadow: inset 0 0 8px #bbf7d0; 
+	min-width: 72px; 
+	text-align: center;
+ }
+
+.time-slot.selected { 
+	background-color: var(--bg-selected); 
+	border-color: var(--bg-selected); 
+	color: var(--color-slot-string-common);
+	box-shadow: none;
+ }
+
+.time-slot.unavailable { 
+	background-color: var(--bg-unavailable-slots);
+	color: var(--bg-unavailable-slots);
+	border-color: var(--bg-unavailable-slots);
+	cursor: default; 
+	box-shadow: none;
+ }
+
+/* 読み込み中 */
+#menu-container {
+  color: var(--color-heading);
+  font-style: italic;
+
+  text-shadow:
+    -1px -1px 3px #ffffffd9,
+     1px -1px 3px #ffffffd9,
+    -1px  1px 3px #ffffffd9,
+     1px  1px 3px #ffffffd9;
+}
+
+#staff-container {
+  color: var(--color-heading);
+  font-style: italic;
+
+  text-shadow:
+    -1px -1px 3px #ffffffd9,
+     1px -1px 3px #ffffffd9,
+    -1px  1px 3px #ffffffd9,
+     1px  1px 3px #ffffffd9;
+}
+
+/* 得意な技術 */
+.staff-skill {
+  color: var(--color-staff-exp);
+}
+
+/* 指名料 */
+.staff-fee {
+  color: var(--color-staff-exp);
+}
+
+
+
+#selected-info { 
+	margin-top: 20px; 
+	font-weight: 700; 
+	font-size: 16px; 
+	text-align: center; 
+	color: var(--color-heading);
+
+  text-shadow:
+    -1px -1px 3px #ffffffd9,
+     1px -1px 3px #ffffffd9,
+    -1px  1px 3px #ffffffd9,
+     1px  1px 3px #ffffffd9;
+ }
+
+#completion-page { 
+	display: none; 
+	height: 100vh; 
+	flex-direction: column; 
+	justify-content: center; 
+	align-items: center; 
+	text-align: center; 
+	font-size: 24px; 
+	padding: 20px; 
+	box-sizing: border-box;
+ }
+
+.completion-box {
+  max-width: 450px;
+  width: 90%;
+  padding: 25px;
+  border-radius: 20px;
+  background: var(--bg-card-common);     /* ← form と同じ半透明背景 */
+  box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--color-heading);
+  font-size: 1.1em;
+  text-shadow:
+    -0.1px -0.1px 3px #ffffffd9,
+     0.1px -0.1px 3px #ffffffd9,
+    -0.1px  0.1px 3px #ffffffd9,
+     0.1px  0.1px 3px #ffffffd9;
+}
+
+.action-bar { 
+	position: fixed; 
+	bottom: 0; 
+	left: 0; 
+	width: 100%; 
+	padding: 12px 20px; 
+	box-shadow: 0 -2px 8px rgba(0,0,0,0.15); 
+	display: flex; 
+	flex-direction: column; 
+	gap: 8px; 
+	box-sizing: border-box;
+ }
+
+
+.action-bar button { 
+	padding: 14px; 
+	font-size: 16px; 
+	border: none; 
+	border-radius: 10px; 
+	cursor: pointer; 
+	user-select: none; 
+	transition: background-color 0.3s ease;
+	color: var(--color-button-string);
+ }
+
+.action-bar button:disabled { 
+	background-color: var(--bg-disabled-button);
+	cursor: not-allowed;
+ }
+
+.action-bar button:hover:not(:disabled) { 
+	background-color: var(--bg-disabled-button); 
+	color: var(--color-button-string);
+ }
+
+.highlight { 
+	background-color: var(--bg-highlight) !important; 
+	color: var(--color-button-string);
+	transform: scale(1.05); 
+	transition: all 0.3s;
+ }
+
+
+#month-navigation {
+  display: flex;
+  justify-content: center; /* 水平方向中央揃え */
+  align-items: center;     /* 垂直方向中央揃え */
+  gap: 12px;               /* 前ボタン・ラベル・次ボタンの間隔 */
+  margin-top: 16px;
+  margin-bottom: 16px;
+  color: var(--color-heading);
+
+  text-shadow:
+    -1px -1px 3px #ffffffd9,
+     1px -1px 3px #ffffffd9,
+    -1px  1px 3px #ffffffd9,
+     1px  1px 3px #ffffffd9;
+}
+
+#month-navigation .nav-btn {
+  padding: 6px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  border: 1px solid var(--bg-card-common);
+  border-radius: 6px;
+  background-color: var(--bg-card-common);
+}
+
+#current-month-label {
+  font-weight: bold;
+  font-size: 16px;
+}

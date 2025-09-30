@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>予約システム</title>
+</head>
+
+
+<body>
+
+<div id="menu-page" class="page active">
+  <h2>メニューを選択してください</h2>
+  <div id="menu-container">読み込み中...</div>
+</div>
+
+<div id="staff-page" class="page">
+  <h2>スタッフを選択してください</h2>
+  <div id="staff-container" class="staff-list">読み込み中...</div>
+</div>
+
+<div id="calendar-page" class="page">
+  <h1>予約したい日時を<br>選択してください</h1>
+  <div id="month-navigation">
+    <button class="nav-btn" id="prev-month-btn">← 前の月</button>
+    <span id="current-month-label"></span>
+    <button class="nav-btn" id="next-month-btn">次の月 →</button>
+  </div>
+  <div id="calendar"></div>
+  <div id="times-list">
+    <h2 id="selected-date-title"></h2>
+    <div id="time-slots-container"></div>
+  </div>
+  <div id="selected-info">現在読み込み中です。<br>カレンダーが表示されるまでお待ちください。</div>
+</div>
+
+
+	<div id="completion-page">
+		<div class="completion-box">	
+			予約が完了しました！<br>ご来店をお待ちしております。
+		</div>
+	</div>
+
+<div class="action-bar">
+  <button id="menu-next" disabled>次へ</button>
+  <button id="staff-next" disabled>次へ</button>
+  <button id="send-button" disabled>予約を送信する</button>
+  <button id="back-button">戻る</button>
+</div>
+
+<script>
+const postwebhookURL = "https://reservations.thinklayer.jp/";
+const webhookURL = "https://reservations.thinklayer.jp/";
+const urlParams = new URLSearchParams(window.location.search);
+const userId = urlParams.get("userId");
+const webappurl = urlParams.get("webappurl");
+
+//CSS関連全て～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～
+window.onload = function() {
+  // CSS 読み込み
+  const cssFile = urlParams.get("css") || "style.css";
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = cssFile;
+  document.head.appendChild(link);
+
+  // カスタムカラー設定
+  const root = document.documentElement;
+	const colorMap = {
+				ColorHeading: "--color-heading",
+				BgSelected: "--bg-selected",
+				BgCardCommon: "--bg-card-common",
+				ColorSlotStringCommon: "--color-slot-string-common",
+				ColorButtonString: "--color-button-string",
+				BgDisabledButton: "--bg-disabled-button",
+				BgHighlight: "--bg-highlight",
+				ColorBlockTitle: "--color-block-title",
+				ColorMenuItemString: "--color-menu-item-string",
+				ColorMenuDescString: "--color-menu-desc-string",
+				ColorStaffName: "--color-staff-name",
+				ColorStaffLabel: "--color-staff-label",
+				ColorStaffIntroduction: "--color-staff-introduction",
+				ColorDayString: "--color-day-string",
+				BgTimeSlot: "--bg-time-slot",
+				BgUnavailableSlots: "--bg-unavailable-slots"
+	};
+
+  for (const key in colorMap) {
+    if (urlParams.get(key)) root.style.setProperty(colorMap[key], urlParams.get(key));
+  }
+
+//～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～
+  //　--- 背景画像設定 --- //
+  const bgImageParam = urlParams.get("bgimage"); // URLパラメータ名を「bgimage」に設定
+  const body = document.body;
+
+  if(bgImageParam && bgImageParam.trim() !== ""){
+    // URLパラメータがある場合はそのURLを使用
+	   body.style.background = `url("${bgImageParam}") no-repeat center center fixed`;
+	} else {
+	  // bgimageが無い場合
+	  if (cssFile === "style_huwa.css") {
+		// huwa の場合
+		body.style.background = 'url("background-huwa.jpg") no-repeat center center fixed';
+	  } else if (cssFile === "style_luxury.css") {
+		// luxury の場合
+		body.style.background = 'url("background-luxury.jpg") no-repeat center center fixed';
+	  } else {
+		// その他
+		body.style.background = 'url("background.jpg") no-repeat center center fixed';
+	  }
+	}
+body.style.backgroundSize = "cover";
+ //～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～
+  
+
+
+
+//～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～
+
+let selectedMenu = null;
+let selectedStaff = null;
+let selectedDayDiv = null;
+let duration = 30;
+let reservedSlots = [];
+
+const menuContainer = document.getElementById("menu-container");
+const menuNextBtn = document.getElementById("menu-next");
+const staffContainer = document.getElementById("staff-container");
+const staffNextBtn = document.getElementById("staff-next");
+const calendarDiv = document.getElementById("calendar");
+const currentMonthLabel = document.getElementById("current-month-label");
+const prevBtn = document.getElementById("prev-month-btn");
+const nextBtn = document.getElementById("next-month-btn");
+const timesList = document.getElementById("times-list");
+const slotsContainer = document.getElementById("time-slots-container");
+const selectedInfo = document.getElementById("selected-info");
+const sendBtn = document.getElementById("send-button");
+const completionPage = document.getElementById("completion-page");
+
+let displayedYear, displayedMonth;
+
+ // 初期ボタン表示設定
+menuNextBtn.style.display = "block";    // 最初は「次へ」のみ表示
+staffNextBtn.style.display = "none";
+sendBtn.style.display = "none";
+document.getElementById("back-button").style.display = "none";
+
+// ---------- ページ遷移 ----------
+const pages = ["menu-page","staff-page","calendar-page"];
+let currentPageIndex = 0;
+function showPage(index){
+  pages.forEach((p,i)=>document.getElementById(p).classList.toggle("active",i===index));
+  currentPageIndex=index;
+  menuNextBtn.style.display = index===0 ? "block" : "none";
+  staffNextBtn.style.display = index===1 ? "block" : "none";
+  sendBtn.style.display = index===2 ? "block" : "none";
+    if(index > 0){
+    document.getElementById("back-button").style.display = "block";
+  } else {
+    document.getElementById("back-button").style.display = "none";
+  }
+  if(index===1) loadStaffPage();
+  if(index===2) initializeCalendar();
+}
+menuNextBtn.addEventListener("click",()=>showPage(1));
+staffNextBtn.addEventListener("click",()=>showPage(2));
+document.getElementById("back-button").addEventListener("click",()=>{if(currentPageIndex>0) showPage(currentPageIndex-1);});
+
+// ---------- メニュー ----------
+let selectedMenuEl = null;
+fetch(webhookURL, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ webappurl: webappurl, userId: userId, menu: true })
+})
+.then(res=>res.json())
+.then(data=>{
+  menuContainer.innerHTML="";
+  let lastBlock="";
+  data.forEach(item=>{
+    const block=item[0]||'', title=item[1]||'', desc=item[2]||'', price=item[5]||'', menuDuration=item[6]?parseInt(item[6],10):30;
+    if(block!==lastBlock){
+      const blockEl=document.createElement("div");
+      blockEl.className="block-title"; blockEl.textContent=block; menuContainer.appendChild(blockEl);
+      lastBlock=block;
+    }
+    const menuEl=document.createElement("div");
+    menuEl.className="menu-item";
+    menuEl.innerHTML=`<div class="menu-title">${title}（¥${price}）</div><div class="menu-desc">${desc}</div>`;
+    menuEl.addEventListener("click",()=>{
+      if(selectedMenuEl) selectedMenuEl.classList.remove("selected");
+      menuEl.classList.add("selected");
+      selectedMenuEl = menuEl;
+      selectedMenu={メニュー名:title, 金額:price, duration:menuDuration};
+      duration=menuDuration;
+      menuNextBtn.disabled=false;
+      menuNextBtn.classList.add("highlight");
+    });
+    menuContainer.appendChild(menuEl);
+  });
+}).catch(()=>{menuContainer.innerHTML="メニュー取得失敗";});
+
+// ---------- スタッフ ----------
+let selectedStaffEl = null;
+function loadStaffPage(){
+  staffContainer.innerHTML="読み込み中...";
+  fetch(webhookURL, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ webappurl: webappurl, userId: userId, staff: true })
+})
+  .then(res=>res.json())
+  .then(data=>{
+    staffContainer.innerHTML="";
+    data.forEach(staff=>{
+        const nickname = staff.nickname || "";
+        const intro     = staff.introduction || "";
+        const imageUrl  = staff.photo || "";
+        const skill     = staff.skill || "";
+        const fee       = staff.fee || "";
+
+      const card=document.createElement("div");
+      card.className="staff-card";
+      card.innerHTML=`<img src="${imageUrl}" class="staff-photo" alt="スタッフ写真">
+		<div class="staff-info">
+		<div class="nickname">${nickname}</div>
+		<div class="block-label">得意な技術</div>
+			<div class="staff-skill">${skill}</div>
+		<div class="block-label">指名料</div>
+			<div class="staff-fee">¥${fee}</div>
+		<div class="block-label">紹介文</div>
+			<div class="introduction">${intro}</div></div>`;
+      card.addEventListener("click",()=>{
+        if(selectedStaffEl) selectedStaffEl.classList.remove("selected");
+        card.classList.add("selected");
+        selectedStaffEl=card;
+        selectedStaff = {
+                          nickname: nickname,
+                          skill: skill,
+                          fee: fee,
+                          photo: imageUrl,
+                          introduction: intro
+                        };
+        staffNextBtn.disabled=false;
+        staffNextBtn.classList.add("highlight");
+      });
+      staffContainer.appendChild(card);
+    });
+  }).catch(()=>{staffContainer.innerHTML="スタッフ取得失敗";});
+}
+
+// ---------- カレンダー ----------
+function getTodayJST(){ const now=new Date(); const utc=now.getTime()+now.getTimezoneOffset()*60000; return new Date(utc+9*3600000);}
+const today=getTodayJST();
+function initializeCalendar(){
+  displayedYear=today.getFullYear(); displayedMonth=today.getMonth();
+fetch(webhookURL, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    webappurl: webappurl,
+    userId: userId,
+    duration: duration,
+    getReserve: true,
+    staff: selectedStaff.nickname
+  })
+})
+  .then(res=>res.json())
+.then(data => {
+  if (data.businessHours) {
+    const bh = data.businessHours;
+    startHour   = parseInt(bh.startHour, 10) || 9;
+    startMinute = parseInt(bh.startMinute, 10) || 0;
+    endHour     = parseInt(bh.endHour, 10) || 18;
+    endMinute   = parseInt(bh.endMinute, 10) || 0;
+    reservedSlots = data.reservedSlots || [];
+    buildCalendar(displayedYear, displayedMonth);
+  }
+  }).catch(()=>{alert("予約データ取得に失敗しました");});
+}
+
+function buildCalendar(year,month){
+  calendarDiv.innerHTML="";
+  const dayNames=["日","月","火","水","木","金","土"];
+  dayNames.forEach(dn=>{const dnElem=document.createElement("div"); dnElem.className="day-name"; dnElem.textContent=dn; calendarDiv.appendChild(dnElem);});
+  const firstDay=new Date(year,month,1), lastDay=new Date(year,month+1,0);
+  const firstWeekDay=firstDay.getDay(), daysInMonth=lastDay.getDate();
+  for(let i=0;i<firstWeekDay;i++){ const emptyDiv=document.createElement("div"); emptyDiv.className="day inactive"; calendarDiv.appendChild(emptyDiv);}
+  for(let d=1;d<=daysInMonth;d++){
+    const dayDiv=document.createElement("div"); dayDiv.className="day"; dayDiv.textContent=d;
+    const dayDate=new Date(year,month,d);
+    const todayDateOnly=new Date(today.getFullYear(),today.getMonth(),today.getDate());
+    if(dayDate<todayDateOnly) dayDiv.classList.add("inactive");
+    dayDiv.dataset.date=`${year}-${String(month+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+    dayDiv.addEventListener("click",()=>onDateSelected(dayDiv));
+    calendarDiv.appendChild(dayDiv);
+  }
+  currentMonthLabel.textContent=`${year}年${month+1}月`;
+  if(selectedDayDiv) selectedDayDiv.classList.remove("selected"); selectedDayDiv=null;
+  timesList.style.display="none"; selectedInfo.textContent="予約したい日時を選択してください"; sendBtn.disabled=true;
+}
+
+function onDateSelected(dayDiv){
+  if(dayDiv.classList.contains("inactive")) return;
+  if(selectedDayDiv) selectedDayDiv.classList.remove("selected");
+  dayDiv.classList.add("selected"); selectedDayDiv=dayDiv;
+  showTimeSlots(dayDiv.dataset.date);
+}
+
+prevBtn.addEventListener("click",()=>{
+  if(displayedMonth===0){ displayedMonth=11; displayedYear--; } else displayedMonth--;
+  buildCalendar(displayedYear,displayedMonth);
+});
+nextBtn.addEventListener("click",()=>{
+  if(displayedMonth===11){ displayedMonth=0; displayedYear++; } else displayedMonth++;
+  buildCalendar(displayedYear,displayedMonth);
+});
+
+function showTimeSlots(dateStr){
+  slotsContainer.innerHTML=""; timesList.style.display="block"; selectedInfo.textContent="時間を選択してください"; sendBtn.disabled=true;
+  const baseDate=new Date(dateStr+"T00:00:00+09:00");
+  let current=new Date(baseDate); current.setHours(startHour,startMinute,0,0);
+  const end=new Date(baseDate); end.setHours(endHour,endMinute,0,0);
+  const reservedForDay=reservedSlots.filter(slot=>new Date(slot.start).toISOString().slice(0,10)===dateStr);
+  let selectedTimeDiv=null;
+    
+//残業確定でスロット生成してるので、90分予約でも営業終了時間までスロット生成可能にしているが、残業を考慮しない、営業終了時間までとするならば「=」をけすだけでいい
+ while(current<=end){   
+
+ 
+    const slotEnd = new Date(current.getTime() + duration*60000);
+    const isReserved=reservedForDay.some(slot=>{const s=new Date(slot.start),e=new Date(slot.end); return !(slotEnd<=s||current>=e);});
+    const timeDiv=document.createElement("div"); timeDiv.className="time-slot";
+    if(isReserved) timeDiv.classList.add("unavailable");
+    const hh=String(current.getHours()).padStart(2,"0"), mm=String(current.getMinutes()).padStart(2,"0");
+    timeDiv.textContent=`${hh}:${mm}`;
+    if(!isReserved){
+      timeDiv.addEventListener("click",()=>{
+        if(selectedTimeDiv) selectedTimeDiv.classList.remove("selected");
+        timeDiv.classList.add("selected"); selectedTimeDiv=timeDiv;
+        selectedInfo.textContent=`選択中: ${dateStr} ${timeDiv.textContent}`;
+        sendBtn.disabled=false;
+		sendBtn.classList.add("highlight");
+      });
+    }
+    slotsContainer.appendChild(timeDiv);
+    current=new Date(current.getTime()+30*60000);
+  }
+}
+
+// ---------- 送信 ----------
+sendBtn.addEventListener("click", async () => {
+  if (!userId || !selectedStaff || !selectedDayDiv) { 
+    alert("予約情報が不完全です"); 
+    return; 
+  }
+
+  const selectedTimeText = document.querySelector(".time-slot.selected")?.textContent;
+  if (!selectedTimeText) { 
+    alert("時間を選択してください"); 
+    return; 
+  }
+
+  // ★ ここで送信中に切り替え
+  sendBtn.disabled = true;
+  const originalText = sendBtn.textContent;
+  sendBtn.textContent = "予約送信中です。お待ちください";
+
+  const dateStr = selectedDayDiv.dataset.date;
+  const startDateTime = new Date(`${dateStr}T${selectedTimeText}:00+09:00`);
+  const endDateTime = new Date(startDateTime.getTime() + duration * 60000);
+
+  try {
+	const res = await fetch(postwebhookURL, {
+	  method: "POST",
+	  headers: { "Content-Type": "application/json" },
+	  body: JSON.stringify({
+		kakutei: true,
+		webappurl: webappurl,
+		reservation: {
+		  userId: userId,
+		  menu: selectedMenu,
+		  staff: selectedStaff,
+		  start: startDateTime.toISOString(),
+		  end: endDateTime.toISOString()
+    }
+  })
+});
+
+
+    if (!res.ok) throw new Error("送信失敗");
+
+    // 成功した場合は完了画面に遷移
+    completionPage.style.display = "flex";
+    document.getElementById("calendar-page").style.display = "none";
+    document.querySelector(".action-bar").style.display = "none";
+
+  } catch (err) {
+    alert(`送信エラー: ${err.message}`);
+    // 失敗した場合はボタンを元に戻す
+    sendBtn.disabled = false;
+    sendBtn.textContent = originalText;
+  }
+});
+};
+
+</script>
+
+</body>
+</html>
