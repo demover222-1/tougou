@@ -208,52 +208,76 @@ fetch(webhookURL, {
 
 // ---------- スタッフ ----------
 let selectedStaffEl = null;
-function loadStaffPage(){
-  staffContainer.innerHTML="読み込み中...";
-  fetch(webhookURL, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ webappurl: webappurl, userId: userId, staff: true })
-})
-  .then(res=>res.json())
-  .then(data=>{
-    staffContainer.innerHTML="";
-    data.forEach(staff=>{
-        const nickname = staff.nickname || "";
-        const intro     = staff.introduction || "";
-        const imageUrl  = staff.photo || "";
-        const skill     = staff.skill || "";
-        const fee       = staff.fee || "";
 
-      const card=document.createElement("div");
-      card.className="staff-card";
-      card.innerHTML=`<img src="${imageUrl}" class="staff-photo" alt="スタッフ写真">
-		<div class="staff-info">
-		<div class="nickname">${nickname}</div>
-		<div class="block-label">得意な技術</div>
-			<div class="staff-skill">${skill}</div>
-		<div class="block-label">指名料</div>
-			<div class="staff-fee">¥${fee}</div>
-		<div class="block-label">紹介文</div>
-			<div class="introduction">${intro}</div></div>`;
-      card.addEventListener("click",()=>{
+function loadStaffPage() {
+  staffContainer.innerHTML = "読み込み中...";
+  fetch(webhookURL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ webappurl: webappurl, userId: userId, staff: true })
+  })
+  .then(res => res.json())
+  .then(data => {
+    staffContainer.innerHTML = "";
+    data.forEach(staff => {
+      const nickName = staff.nickName || "";
+      const intro     = staff.introduction || "";
+      const imageUrl  = staff.photo || "";
+      const skill     = staff.skill || "";
+      const fee       = staff.fee || "";
+      const image     = staff.image || "";
+
+      // 各ブロックごとに空欄なら display:none
+      const skillDisplay = skill ? "block" : "none";
+      const imageDisplay = image ? "block" : "none";
+      const feeDisplay   = fee && Number(fee) > 0 ? "block" : "none";
+      const introDisplay = intro ? "block" : "none";
+
+      const card = document.createElement("div");
+      card.className = "staff-card";
+      card.innerHTML = `
+        <img src="${imageUrl}" class="staff-photo" alt="スタッフ写真">
+        <div class="staff-info">
+          <div class="block-label" style="display:${skillDisplay}">${nickName}</div>
+
+          <div class="block-label" style="display:${skillDisplay}">得意な技術</div>
+          <div class="staff-skill" style="display:${skillDisplay}">　${skill}</div>
+
+          <div class="block-label" style="display:${imageDisplay}">得意なイメージ</div>
+          <div class="staff-image" style="display:${imageDisplay}">　${image}</div>
+
+          <div class="block-label" style="display:${feeDisplay}">指名料</div>
+          <div class="staff-fee" style="display:${feeDisplay}">　${feeDisplay === "block" ? "¥" + fee : ""}</div>
+
+          <div class="block-label" style="display:${introDisplay}">紹介文</div>
+          <div class="introduction" style="display:${introDisplay}">　${intro}</div>
+        </div>
+      `;
+
+      card.addEventListener("click", () => {
         if(selectedStaffEl) selectedStaffEl.classList.remove("selected");
         card.classList.add("selected");
-        selectedStaffEl=card;
+        selectedStaffEl = card;
         selectedStaff = {
-                          nickname: nickname,
-                          skill: skill,
-                          fee: fee,
-                          photo: imageUrl,
-                          introduction: intro
-                        };
-        staffNextBtn.disabled=false;
+          nickName: nickName,
+          skill: skill,
+          image: image,
+          fee: fee,
+          photo: imageUrl,
+          introduction: intro
+        };
+        staffNextBtn.disabled = false;
         staffNextBtn.classList.add("highlight");
       });
+
       staffContainer.appendChild(card);
     });
-  }).catch(()=>{staffContainer.innerHTML="スタッフ取得失敗";});
+  })
+  .catch(() => {
+    staffContainer.innerHTML = "スタッフ取得失敗";
+  });
 }
+
 
 // ---------- カレンダー ----------
 function getTodayJST(){ const now=new Date(); const utc=now.getTime()+now.getTimezoneOffset()*60000; return new Date(utc+9*3600000);}
@@ -268,7 +292,7 @@ fetch(webhookURL, {
     userId: userId,
     duration: duration,
     getReserve: true,
-    staff: selectedStaff.nickname
+    staff: selectedStaff.nickName
   })
 })
   .then(res=>res.json())
