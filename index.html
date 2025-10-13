@@ -185,6 +185,9 @@ fetch(webhookURL, {
   let lastBlock="";
   data.forEach(item=>{
     const block=item[0]||'', title=item[1]||'', desc=item[2]||'', price=item[5]||'', menuDuration=item[6]?parseInt(item[6],10):30;
+
+	if(!title) return;	  
+	  
     if(block!==lastBlock){
       const blockEl=document.createElement("div");
       blockEl.className="block-title"; blockEl.textContent=block; menuContainer.appendChild(blockEl);
