@@ -241,6 +241,11 @@ h2, h1 {
   font-style: italic;
 }
 
+/* 得意なイメージ */
+.staff-image {
+  color: var(--color-staff-exp);
+}
+
 /* 得意な技術 */
 .staff-skill {
   color: var(--color-staff-exp);
@@ -356,3 +361,4 @@ h2, h1 {
   font-weight: bold;
   font-size: 16px;
 }
+
