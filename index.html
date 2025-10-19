@@ -56,6 +56,7 @@ const urlParams = new URLSearchParams(window.location.search);
 const userId = urlParams.get("userId");
 const webappurl = urlParams.get("webappurl");
 const sheetId = urlParams.get("sheetId");
+const isHenkou = urlParams.get("henkou") === "true";
 
 //CSS関連全て～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～
 window.onload = function() {
@@ -405,24 +406,30 @@ sendBtn.addEventListener("click", async () => {
   const startDateTime = new Date(`${dateStr}T${selectedTimeText}:00+09:00`);
   const endDateTime = new Date(startDateTime.getTime() + duration * 60000);
 
+  let data = {
+		  webappurl: webappurl,
+		  sheetId: sheetId,
+		  reservation: {
+			  userId: userId,
+			  menu: selectedMenu,
+			  staff: selectedStaff,
+			  start: startDateTime.toISOString(),
+			  end: endDateTime.toISOString()
+		  }
+  };
+
+	if (isHenkou) {
+	  data.henkou = true;
+	} else {
+	  data.kakutei = true;
+	}
+	
   try {
 	const res = await fetch(postwebhookURL, {
 	  method: "POST",
 	  headers: { "Content-Type": "application/json" },
-	  body: JSON.stringify({
-		kakutei: true,
-		webappurl: webappurl,
-	    sheetId: sheetId,
-		reservation: {
-		  userId: userId,
-		  menu: selectedMenu,
-		  staff: selectedStaff,
-		  start: startDateTime.toISOString(),
-		  end: endDateTime.toISOString()
-    }
-  })
+	  body: JSON.stringify(data)
 });
-
 
     if (!res.ok) throw new Error("送信失敗");
 
