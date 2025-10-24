@@ -181,6 +181,11 @@ function showPage(index){
   
   if(index===1) loadStaffPage();
   if(index===2) initializeCalendar();
+  // ★ 要望ページなら送信ボタンを有効化
+  if(index === 3){
+    sendBtn.disabled = false;
+    sendBtn.classList.add("highlight");
+  }
 }
 menuNextBtn.addEventListener("click",()=>showPage(1));
 staffNextBtn.addEventListener("click",()=>showPage(2));
@@ -462,6 +467,7 @@ sendBtn.addEventListener("click", async () => {
 
     // 成功した場合は完了画面に遷移
     completionPage.style.display = "flex";
+	pages.forEach(p => document.getElementById(p).style.display = "none"); // ← 追加
     document.getElementById("calendar-page").style.display = "none";
     document.querySelector(".action-bar").style.display = "none";
 
