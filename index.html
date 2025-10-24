@@ -103,22 +103,19 @@ window.onload = function() {
   const bgImageParam = urlParams.get("bgimage"); // URLパラメータ名を「bgimage」に設定
   const bgLayer = document.getElementById("bg-layer");
 	
-  if(bgImageParam && bgImageParam.trim() !== ""){
+if(bgImageParam && bgImageParam.trim() !== ""){
     // URLパラメータがある場合はそのURLを使用
-	   body.style.background = `url("${bgImageParam}") no-repeat center center fixed`;
-	} else {
-	  // bgimageが無い場合
-	  if (cssFile === "style_huwa.css") {
-		// huwa の場合
-		body.style.background = 'url("background-huwa.jpg") no-repeat center center fixed';
-	  } else if (cssFile === "style_luxury.css") {
-		// luxury の場合
-		body.style.background = 'url("background-luxury.jpg") no-repeat center center fixed';
-	  } else {
-		// その他
-		body.style.background = 'url("background.jpg") no-repeat center center fixed';
-	  }
-	}
+    bgLayer.style.backgroundImage = `url("${bgImageParam}")`;
+} else {
+    // bgimageが無い場合
+    if (cssFile === "style_huwa.css") {
+        bgLayer.style.backgroundImage = 'url("background-huwa.jpg")';
+    } else if (cssFile === "style_luxury.css") {
+        bgLayer.style.backgroundImage = 'url("background-luxury.jpg")';
+    } else {
+        bgLayer.style.backgroundImage = 'url("background.jpg")';
+    }
+}
 body.style.backgroundSize = "cover";
  //～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～
   
