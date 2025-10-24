@@ -10,7 +10,11 @@
 
 <body>
 <!-- 背景専用レイヤー -->
-<div id="bg-layer"></div>
+<div id="bg-layer">
+  <img id="bg-image" src="background.jpg" alt="">
+</div>
+
+
 	
 <div id="menu-page" class="page active">
   <h2>メニューを選択してください</h2>
@@ -100,22 +104,21 @@ window.onload = function() {
 
 //～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～
   //　--- 背景画像設定 --- //
-  const bgImageParam = urlParams.get("bgimage"); // URLパラメータ名を「bgimage」に設定
-  const bgLayer = document.getElementById("bg-layer");
-	
-if(bgImageParam && bgImageParam.trim() !== ""){
-    // URLパラメータがある場合はそのURLを使用
-    bgLayer.style.backgroundImage = `url("${bgImageParam}")`;
+const bgImageParam = urlParams.get("bgimage");
+const bgImage = document.getElementById("bg-image");
+
+if (bgImageParam && bgImageParam.trim() !== "") {
+  bgImage.src = bgImageParam;
 } else {
-    // bgimageが無い場合
-    if (cssFile === "style_huwa.css") {
-        bgLayer.style.backgroundImage = 'url("background-huwa.jpg")';
-    } else if (cssFile === "style_luxury.css") {
-        bgLayer.style.backgroundImage = 'url("background-luxury.jpg")';
-    } else {
-        bgLayer.style.backgroundImage = 'url("background.jpg")';
-    }
+  if (cssFile === "style_huwa.css") {
+    bgImage.src = "background-huwa.jpg";
+  } else if (cssFile === "style_luxury.css") {
+    bgImage.src = "background-luxury.jpg";
+  } else {
+    bgImage.src = "background.jpg";
+  }
 }
+
  //～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～
   
 
