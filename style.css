@@ -150,7 +150,7 @@ h2, h1 {
 
 .staff-info { flex: 1; }
 
-.nickname { 
+.nickName { 
 	font-weight: bold; 
 	font-size: 1.1em; 
 	margin-bottom: 6px;
@@ -436,3 +436,4 @@ h2, h1 {
   box-shadow: 0 0 8px var(--bg-highlight); /* ハイライトカラーを反映 */
   background-color: var(--bg-card-common); /* 背景は変えず統一 */
 }
+
