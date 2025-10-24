@@ -9,7 +9,9 @@
 
 
 <body>
-
+<!-- 背景専用レイヤー -->
+<div id="bg-layer"></div>
+	
 <div id="menu-page" class="page active">
   <h2>メニューを選択してください</h2>
   <div id="menu-container">読み込み中...</div>
@@ -99,8 +101,8 @@ window.onload = function() {
 //～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～～
   //　--- 背景画像設定 --- //
   const bgImageParam = urlParams.get("bgimage"); // URLパラメータ名を「bgimage」に設定
-  const body = document.body;
-
+  const bgLayer = document.getElementById("bg-layer");
+	
   if(bgImageParam && bgImageParam.trim() !== ""){
     // URLパラメータがある場合はそのURLを使用
 	   body.style.background = `url("${bgImageParam}") no-repeat center center fixed`;
