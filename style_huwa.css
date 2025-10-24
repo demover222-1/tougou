@@ -410,4 +410,26 @@ h2, h1 {
   font-size: 16px;
 }
 
+/* 要望入力欄のスタイル */
+#request-text {
+  width: 100%;
+  max-width: 600px;
+  padding: 12px;                       /* メニューやカードに合わせて少し大きめ */
+  font-size: 16px;
+  border: 2px solid var(--bg-card-common);  /* カードと統一 */
+  border-radius: 12px;                  /* カードや時間スロットに合わせる */
+  resize: vertical;                     /* 縦方向のみ変更可 */
+  box-sizing: border-box;
+  background-color: var(--bg-card-common);  /* カード背景と統一 */
+  color: var(--color-slot-string-common);   /* 文字色を統一 */
+  transition: all 0.3s ease;            /* フォーカス時アニメーション */
+}
+
+/* フォーカス時 */
+#request-text:focus {
+  outline: none;
+  border-color: var(--bg-selected);     /* 選択時カラーと統一 */
+  box-shadow: 0 0 8px var(--bg-highlight); /* ハイライトカラーを反映 */
+  background-color: var(--bg-card-common); /* 背景は変えず統一 */
+}
 
