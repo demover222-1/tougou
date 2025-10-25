@@ -162,36 +162,40 @@ document.getElementById("back-button").style.display = "none";
 
 // ---------- ページ遷移 ----------
 const pages = ["menu-page", "staff-page", "calendar-page", "request-page"];
+let currentPageIndex = 0; // 現在ページ
 
-let currentPageIndex = 0;
 function showPage(index){
   pages.forEach((p,i)=>document.getElementById(p).classList.toggle("active",i===index));
-  currentPageIndex=index;
+  currentPageIndex = index;
   
   menuNextBtn.style.display = index===0 ? "block" : "none";
   staffNextBtn.style.display = index===1 ? "block" : "none";
   document.getElementById("calendar-next").style.display = index===2 ? "block" : "none";
   sendBtn.style.display = index===3 ? "block" : "none";
   
-    if(index > 0){
-    document.getElementById("back-button").style.display = "block";
-  } else {
-    document.getElementById("back-button").style.display = "none";
-  }
-  
+  document.getElementById("back-button").style.display = index>0 ? "block" : "none";
+
   if(index===1) loadStaffPage();
   if(index===2) initializeCalendar();
-  // ★ 要望ページなら送信ボタンを有効化
-  if(index === 3){
+  if(index===3){
     sendBtn.disabled = false;
     sendBtn.classList.add("highlight");
   }
 }
+
 menuNextBtn.addEventListener("click",()=>showPage(1));
 staffNextBtn.addEventListener("click",()=>showPage(2));
-
 document.getElementById("calendar-next").addEventListener("click",()=>showPage(3));
 document.getElementById("back-button").addEventListener("click",()=>{if(currentPageIndex>0) showPage(currentPageIndex-1);});
+
+// ---------- 初期ページ ----------
+let pageIdParam = urlParams.get("pageId"); // URLからpageId取得
+let initialPageIndex = 0; // デフォルトはメニュー画面
+if(pageIdParam && pages.includes(pageIdParam)){
+  initialPageIndex = pages.indexOf(pageIdParam);
+}
+showPage(initialPageIndex);
+
 
 // ---------- メニュー ----------
 let selectedMenuEl = null;
