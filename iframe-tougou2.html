@@ -404,7 +404,7 @@ function getCurrentPageId() {
 
 
 function updateIframe(colors, bgimage="") {
-  const currentPage = getCurrentPageId() || getCurrentPageParam(); 
+  const currentPage = getCurrentPageId(); 
   let url = "https://demover222-1.github.io/tougou/?userId=test" +                                                                                                  //変更
 			"&sheetId=" + sheetId +		
 			"&webappurl=" + webappurl +
@@ -544,4 +544,5 @@ document.querySelectorAll(".toggle-section").forEach(section => {
 
 </script>
 </body>
+
 </html>
