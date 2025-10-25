@@ -310,50 +310,61 @@ function loadStaffPage() {
 // ---------- カレンダー ----------
 function getTodayJST(){ const now=new Date(); const utc=now.getTime()+now.getTimezoneOffset()*60000; return new Date(utc+9*3600000);}
 
-	function initializeCalendar() {
-const today=getTodayJST();
+let today = getTodayJST(); // ← グローバルに
+
+function initializeCalendar() {
+  today = getTodayJST(); // ここも更新
   displayedYear = today.getFullYear();
   displayedMonth = today.getMonth();
 
-  // スタッフ未選択なら fetch せずカレンダーだけ描画
-  if (!selectedStaff || !selectedStaff.nickName) {
-    console.warn("スタッフ未選択のためデータ取得はスキップ");
-    reservedSlots = []; // 空配列で予約なし
+  // スタッフ未選択時でも仮データでカレンダー生成
+  if (!selectedStaff) {
+    startHour = 9;
+    startMinute = 0;
+    endHour = 18;
+    endMinute = 0;
+    duration = 30;
+    reservedSlots = [];
     buildCalendar(displayedYear, displayedMonth);
     return;
   }
-	
-let data = {
-		    webappurl: webappurl,
-		    userId: userId,
-			sheetId: sheetId,
-		    duration: duration,
-		    getReserve: true,
-		    staff: selectedStaff.nickName
+
+  let data = {
+    webappurl: webappurl,
+    userId: userId,
+    sheetId: sheetId,
+    duration: duration,
+    getReserve: true,
+    staff: selectedStaff.nickName
   };
 
-	if (isHenkou) {
-	  data.eventHenkou = true;
-	}
-	
-  displayedYear=today.getFullYear(); displayedMonth=today.getMonth();
-fetch(webhookURL, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify(data)
-})
-  .then(res=>res.json())
-.then(data => {
-  if (data.businessHours) {
-    const bh = data.businessHours;
-    startHour   = parseInt(bh.startHour, 10) || 9;
-    startMinute = parseInt(bh.startMinute, 10) || 0;
-    endHour     = parseInt(bh.endHour, 10) || 18;
-    endMinute   = parseInt(bh.endMinute, 10) || 0;
+  if (isHenkou) data.eventHenkou = true;
+
+  fetch(webhookURL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  })
+  .then(res => res.json())
+  .then(data => {
+    const bh = data.businessHours || {};
+    startHour   = parseInt(bh.startHour,10) || 9;
+    startMinute = parseInt(bh.startMinute,10) || 0;
+    endHour     = parseInt(bh.endHour,10) || 18;
+    endMinute   = parseInt(bh.endMinute,10) || 0;
     reservedSlots = data.reservedSlots || [];
     buildCalendar(displayedYear, displayedMonth);
-  }
-  }).catch(()=>{alert("予約データ取得に失敗しました");});
+  })
+  .catch(() => {
+    // fetch 失敗時も仮データで描画
+    startHour = 9;
+    startMinute = 0;
+    endHour = 18;
+    endMinute = 0;
+    duration = 30;
+    reservedSlots = [];
+    buildCalendar(displayedYear, displayedMonth);
+  });
 }
 
 function buildCalendar(year,month){
