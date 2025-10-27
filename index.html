@@ -138,6 +138,32 @@ let selectedDayDiv = null;
 let duration = 30;
 let reservedSlots = [];
 
+
+
+// ここに追加
+let startHour, startMinute, endHour, endMinute;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 const menuContainer = document.getElementById("menu-container");
 const menuNextBtn = document.getElementById("menu-next");
 const staffContainer = document.getElementById("staff-container");
@@ -181,6 +207,9 @@ function showPage(index){
     sendBtn.disabled = false;
     sendBtn.classList.add("highlight");
   }
+   const url = new URL(window.location);
+  url.searchParams.set("pageId", pages[index]);
+  history.replaceState(null, "", url.toString());
 }
 
 menuNextBtn.addEventListener("click",()=>showPage(1));
@@ -309,24 +338,23 @@ function loadStaffPage() {
 
 // ---------- カレンダー ----------
 function getTodayJST(){ const now=new Date(); const utc=now.getTime()+now.getTimezoneOffset()*60000; return new Date(utc+9*3600000);}
-const today=getTodayJST();
 
-	
 function initializeCalendar(){
-	
+
 let data = {
 		    webappurl: webappurl,
 		    userId: userId,
-			sheetId: sheetId,
+		  	sheetId: sheetId,
 		    duration: duration,
 		    getReserve: true,
-		    staff: selectedStaff.nickName
+		    staff: selectedStaff?.nickName || ""
   };
 
 	if (isHenkou) {
 	  data.eventHenkou = true;
 	}
-	
+
+const today=getTodayJST();
   displayedYear=today.getFullYear(); displayedMonth=today.getMonth();
 fetch(webhookURL, {
   method: "POST",
@@ -344,10 +372,20 @@ fetch(webhookURL, {
     reservedSlots = data.reservedSlots || [];
     buildCalendar(displayedYear, displayedMonth);
   }
-  }).catch(()=>{alert("予約データ取得に失敗しました");});
+  }).catch(()=>{
+    startHour   = 9;
+    startMinute = 0;
+    endHour     = 18;
+    endMinute   = 0;
+    reservedSlots = [];
+    buildCalendar(displayedYear, displayedMonth);
+  });
+
 }
 
+
 function buildCalendar(year,month){
+const today=getTodayJST();
   calendarDiv.innerHTML="";
   const dayNames=["日","月","火","水","木","金","土"];
   dayNames.forEach(dn=>{const dnElem=document.createElement("div"); dnElem.className="day-name"; dnElem.textContent=dn; calendarDiv.appendChild(dnElem);});
@@ -365,7 +403,8 @@ function buildCalendar(year,month){
   }
   currentMonthLabel.textContent=`${year}年${month+1}月`;
   if(selectedDayDiv) selectedDayDiv.classList.remove("selected"); selectedDayDiv=null;
-  timesList.style.display="none"; selectedInfo.textContent="予約したい日時を選択してください"; sendBtn.disabled=true;
+  timesList.style.display="none"; 
+  selectedInfo.textContent="予約したい日時を選択してください"; sendBtn.disabled=true;
 }
 
 function onDateSelected(dayDiv){
@@ -384,6 +423,25 @@ nextBtn.addEventListener("click",()=>{
   buildCalendar(displayedYear,displayedMonth);
 });
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/**
 function showTimeSlots(dateStr){
   slotsContainer.innerHTML=""; timesList.style.display="block"; selectedInfo.textContent="時間を選択してください"; sendBtn.disabled=true;
   const baseDate=new Date(dateStr+"T00:00:00+09:00");
@@ -416,6 +474,102 @@ document.getElementById("calendar-next").classList.add("highlight");
     current=new Date(current.getTime()+30*60000);
   }
 }
+
+*/
+
+
+
+function showTimeSlots(dateStr){
+  slotsContainer.innerHTML = "";
+  timesList.style.display = "block";
+  selectedInfo.textContent = "時間を選択してください";
+  sendBtn.disabled = true;
+
+  const baseDate = new Date(dateStr + "T00:00:00+09:00");
+  let current = new Date(baseDate);
+  current.setHours(startHour, startMinute, 0, 0);
+  const end = new Date(baseDate);
+  end.setHours(endHour, endMinute, 0, 0);
+  let selectedTimeDiv = null;
+
+  // 変更点1: reservedSlots の日付変換をループ外でまとめる
+  const reservedForDay = reservedSlots
+    .map(slot => ({
+      start: new Date(slot.start).getTime(),
+      end: new Date(slot.end).getTime()
+    }))
+    .filter(slot => {
+      const slotDate = new Date(slot.start);
+      return slotDate.getFullYear() === baseDate.getFullYear() &&
+             slotDate.getMonth() === baseDate.getMonth() &&
+             slotDate.getDate() === baseDate.getDate();
+    });
+
+  // 変更点2: DocumentFragment を使ってまとめて DOM 追加
+  const fragment = document.createDocumentFragment();
+
+  while(current <= end){
+    const slotEndTime = current.getTime() + duration * 60000;
+    const isReserved = reservedForDay.some(slot => !(slotEndTime <= slot.start || current.getTime() >= slot.end));
+
+    const timeDiv = document.createElement("div");
+    timeDiv.className = "time-slot";
+    if(isReserved) timeDiv.classList.add("unavailable");
+
+    const hh = String(current.getHours()).padStart(2,"0");
+    const mm = String(current.getMinutes()).padStart(2,"0");
+    timeDiv.textContent = `${hh}:${mm}`;
+
+    if(!isReserved){
+      timeDiv.addEventListener("click", () => {
+        if(selectedTimeDiv) selectedTimeDiv.classList.remove("selected");
+        timeDiv.classList.add("selected");
+        selectedTimeDiv = timeDiv;
+        selectedInfo.textContent = `選択中: ${dateStr} ${timeDiv.textContent}`;
+        sendBtn.classList.add("highlight");
+        document.getElementById("calendar-next").disabled = false;
+        document.getElementById("calendar-next").classList.add("highlight");
+      });
+    }
+
+    fragment.appendChild(timeDiv);
+    current = new Date(current.getTime() + 30*60000);
+  }
+
+  slotsContainer.appendChild(fragment);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // ---------- 送信 ----------
 sendBtn.addEventListener("click", async () => {
