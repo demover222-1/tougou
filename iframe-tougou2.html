@@ -390,46 +390,19 @@ const styleDefaults = {
 		}
 };
 
-function getCurrentPageId() {
-  const iframe = document.getElementById("previewFrame");
-  try {
-    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-    const activePage = iframeDoc.querySelector(".page.active");
-    return activePage ? activePage.id : "";
-  } catch (e) {
-    return "";
-  }
-}
-
-// iframe のロード完了時に pageId を URL に付与
-const iframe = document.getElementById("previewFrame");
-iframe.onload = () => {
-  const currentPage = getCurrentPageId();
-  if (currentPage) {
-    const url = new URL(iframe.src);
-    url.searchParams.set("pageId", currentPage);
-    // iframe.src = url.toString();  // 注意: これを直接書くと再読み込みループになるので、
-    // iframe 内で pageId を反映する場合は、iframe 内で処理する方が安全
-  }
-};
-
-function updateIframeColors(colors, bgimage="") {
-  const iframe = document.getElementById("previewFrame");
-  const doc = iframe.contentDocument || iframe.contentWindow.document;
-  if (!doc) return;
-
-  // 例: スタッフ名の色だけ変更
-  const staffNames = doc.querySelectorAll(".staff-name");
-  staffNames.forEach(el => el.style.color = colors.colorStaffName);
-
-  // 背景画像がある場合
-  if (bgimage) doc.body.style.backgroundImage = `url(${bgimage})`;
-}
-
-
 
 function updateIframe(colors, bgimage="") {
-  const currentPage = getCurrentPageId(); 
+  const iframe = document.getElementById("previewFrame");
+
+  // 最新の pageId を取得
+  let pageId = "";
+  try {
+    const urlObj = new URL(iframe.contentWindow.location.href);
+    pageId = urlObj.searchParams.get("pageId") || "";
+  } catch(err) {
+    console.warn("pageId 取得できません（同一オリジンか確認してください）", err);
+  }
+  
   let url = "https://demover222-1.github.io/tougou/?userId=test" +                                                                                                  //変更
 			"&sheetId=" + sheetId +		
 			"&webappurl=" + webappurl +
@@ -451,8 +424,10 @@ function updateIframe(colors, bgimage="") {
 			"&bgUnavailableSlots=" + encodeURIComponent(colors.bgUnavailableSlots) +
 			"&css=" + encodeURIComponent(document.getElementById("styleSelect").value);
   if(bgimage.trim() !== "") url += "&bgimage=https://lh3.googleusercontent.com/d/" + encodeURIComponent(bgimage);
-  if (currentPage) url += "&pageId=" + encodeURIComponent(currentPage);
+  if(pageId) url += "&pageId=" + pageId;
+	
   document.getElementById("previewFrame").src = url;
+  
 }
 
 function applyColorsToFormAndIframe(colors, bgimage="") {
@@ -545,7 +520,7 @@ form.addEventListener("submit", (e)=>{
 
 document.querySelectorAll(".color-list input[type=color]").forEach(input=>{
   input.addEventListener("input", ()=>{
-    updateIframeColors(collectColors(), bgimageCache);
+    updateIframe(collectColors(), bgimageCache);
   });
 });
 
@@ -569,6 +544,4 @@ document.querySelectorAll(".toggle-section").forEach(section => {
 
 </script>
 </body>
-
 </html>
-
